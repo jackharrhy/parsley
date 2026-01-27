@@ -15,6 +15,30 @@ import (
 
 var _KwargPattern = regexp.MustCompile(`^([a-zA-Z_\d]+)=(.*)$`)
 
+func normalizeSmartQuotes(s string) string {
+	replacements := map[rune]string{
+		'\u2018': "'",  // Left single quote
+		'\u2019': "'",  // Right single quote
+		'\u201C': "\"", // Left double quote
+		'\u201D': "\"", // Right double quote
+		'\u201B': "'",  // Single high-reversed-9 quote
+		'\u201A': "'",  // Single low-9 quote
+		'\u201F': "\"", // Double high-reversed-9 quote
+		'\u201E': "\"", // Double low-9 quote
+	}
+
+	var result strings.Builder
+	for _, r := range s {
+		if replacement, exists := replacements[r]; exists {
+			result.WriteString(replacement)
+		} else {
+			result.WriteRune(r)
+		}
+	}
+
+	return result.String()
+}
+
 // Command represents an individual Discord command.
 type Command struct {
 	description string
@@ -61,7 +85,8 @@ func (parser *Parser) RunCommand(message *discordgo.MessageCreate) error {
 		return nil
 	}
 
-	arguments, err := shlex.Split(message.Content)
+	normalizedContent := normalizeSmartQuotes(message.Content)
+	arguments, err := shlex.Split(normalizedContent)
 	arguments[0] = strings.TrimPrefix(arguments[0], parser.prefix)
 	if err != nil {
 		return fmt.Errorf("error parsing arguments: %w", err)
