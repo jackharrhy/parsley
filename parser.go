@@ -81,20 +81,23 @@ func (parser *Parser) NewCommand(name, description string, handler interface{}) 
 
 // RunCommand parses the content of a specific message and runs the associated command, if found.
 func (parser *Parser) RunCommand(message *discordgo.MessageCreate) error {
-	matchedPrefix := ""
+	var matchedPrefix *string
 	for _, prefix := range parser.prefixes {
+		if prefix == "" {
+			continue
+		}
 		if strings.HasPrefix(message.Content, prefix) {
-			matchedPrefix = prefix
+			matchedPrefix = &prefix
 			break
 		}
 	}
-	if matchedPrefix == "" {
+	if matchedPrefix == nil {
 		return nil
 	}
 
 	normalizedContent := normalizeSmartQuotes(message.Content)
 	arguments, err := shlex.Split(normalizedContent)
-	arguments[0] = strings.TrimPrefix(arguments[0], matchedPrefix)
+	arguments[0] = strings.TrimPrefix(arguments[0], *matchedPrefix)
 	if err != nil {
 		return fmt.Errorf("error parsing arguments: %w", err)
 	}

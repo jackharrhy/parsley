@@ -633,6 +633,18 @@ func TestRunCommandWithNonMatchingPrefixMultiple(t *testing.T) {
 	}
 }
 
+func TestRunCommandWithEmptyStringPrefix(t *testing.T) {
+	parser := New("")
+	parser.NewCommand("test", "", func(message *discordgo.MessageCreate, args struct{}) {
+		t.Error("command handler should not be called with empty string prefix")
+	})
+
+	err := parser.RunCommand(&discordgo.MessageCreate{Message: &discordgo.Message{Content: "test"}})
+	if err != nil {
+		t.Errorf("running command returned unexpected error: %v", err)
+	}
+}
+
 func TestRunCommandWithOverlappingPrefixes(t *testing.T) {
 	parser := New("test!", "test")
 	called := false
