@@ -299,6 +299,11 @@ func (parser *Parser) GetCommands() []CommandDetails {
 	return commandDetails
 }
 
+// Prefixes returns the prefixes the parser is configured with.
+func (parser *Parser) Prefixes() []string {
+	return parser.prefixes
+}
+
 // New creates a new Parsley parser.
 func New(prefixes ...string) *Parser {
 	return &Parser{
