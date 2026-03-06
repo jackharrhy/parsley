@@ -83,9 +83,6 @@ func (parser *Parser) NewCommand(name, description string, handler interface{}) 
 func (parser *Parser) RunCommand(message *discordgo.MessageCreate) error {
 	var matchedPrefix *string
 	for _, prefix := range parser.prefixes {
-		if prefix == "" {
-			continue
-		}
 		if strings.HasPrefix(message.Content, prefix) {
 			matchedPrefix = &prefix
 			break
